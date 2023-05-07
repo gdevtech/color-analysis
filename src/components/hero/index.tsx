@@ -1,6 +1,7 @@
-import { Button, Container, createStyles, Group, List, rem, Text, ThemeIcon, Title } from '@mantine/core';
-import { IconCheck } from '@tabler/icons-react';
-import { useUser } from '@clerk/nextjs';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+import { Container, createStyles, Input, rem, Title, Image } from '@mantine/core';
+import { useState } from 'react';
 
 
 const useStyles = createStyles((theme) => ({
@@ -56,51 +57,35 @@ const useStyles = createStyles((theme) => ({
 
 export function Hero() {
   const { classes } = useStyles();
-  const { user } = useUser();
+  const [previewImage, setPreviewImage] = useState(null);
+  const [bgColor, setBgColor] = useState(null);
+
+  const onImageChange = (event: any) => {
+    setPreviewImage(URL.createObjectURL(event.currentTarget.files[0]));
+  }
+
+  const onBgColorChange = (event: any) => {
+    setBgColor(event.currentTarget.value);
+  }
+
   return (
     <Container>
       <div className={classes.inner}>
         <div className={classes.content}>
           <Title className={classes.title}>
-            Welcome {user?.firstName} to <span className={classes.highlight}>modern</span> Craft Cab!!! <br />
+            Welcome To Color Analyser
           </Title>
-          <Text color='dimmed' mt='md'>
-            Build fully functional accessible web applications faster than ever – Mantine includes
-            more than 120 customizable components and hooks to cover you in any situation
-          </Text>
 
-          <List
-            mt={30}
-            spacing='sm'
-            size='sm'
-            icon={
-              <ThemeIcon size={20} radius='xl'>
-                <IconCheck size={rem(12)} stroke={1.5} />
-              </ThemeIcon>
-            }
-          >
-            <List.Item>
-              <b>TypeScript based</b> – build type safe applications, all components and hooks
-              export types
-            </List.Item>
-            <List.Item>
-              <b>Free and open source</b> – all packages have MIT license, you can use Mantine in
-              any project
-            </List.Item>
-            <List.Item>
-              <b>No annoying focus ring</b> – focus ring will appear only when user navigates with
-              keyboard
-            </List.Item>
-          </List>
+          {previewImage && (
+            <div style={{ height: '500px', width: '100%', backgroundColor: `${bgColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Image maw={240} mah={240} mx="auto" radius="md" src={previewImage} alt="Random image" />
+            </div>
 
-          <Group mt={30}>
-            <Button radius='xl' size='md' className={classes.control}>
-              Get started
-            </Button>
-            <Button variant='default' radius='xl' size='md' className={classes.control}>
-              Source code
-            </Button>
-          </Group>
+          )}
+
+          <Input type='file' placeholder='image' onChange={onImageChange} />
+          <Input type='color' placeholder='color' onChange={onBgColorChange} />
+
         </div>
       </div>
     </Container>
