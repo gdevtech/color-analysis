@@ -1,6 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { Container, createStyles, Input, rem, Title, Image } from '@mantine/core';
+import { Container, createStyles, rem, Title, Image, FileInput, ColorPicker } from '@mantine/core';
+import { IconFaceId } from '@tabler/icons-react';
 import { useState } from 'react';
 
 
@@ -60,12 +61,13 @@ export function Hero() {
   const [previewImage, setPreviewImage] = useState(null);
   const [bgColor, setBgColor] = useState(null);
 
-  const onImageChange = (event: any) => {
-    setPreviewImage(URL.createObjectURL(event.currentTarget.files[0]));
+
+  const onImageChange = (file: any) => {
+    setPreviewImage(URL.createObjectURL(file));
   }
 
-  const onBgColorChange = (event: any) => {
-    setBgColor(event.currentTarget.value);
+  const onBgColorChange = (color: any) => {
+    setBgColor(color);
   }
 
   return (
@@ -78,13 +80,13 @@ export function Hero() {
 
           {previewImage && (
             <div style={{ height: '500px', width: '100%', backgroundColor: `${bgColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Image maw={240} mah={240} mx="auto" radius="md" src={previewImage} alt="Random image" />
+              <Image maw={240} mah={240} mx="auto" radius="md" src={previewImage} alt="Image" />
             </div>
 
           )}
+          <FileInput label="Upload Image" placeholder="Click & Choose File" onChange={onImageChange} icon={<IconFaceId size={rem(14)} />} />
 
-          <Input type='file' placeholder='image' onChange={onImageChange} />
-          <Input type='color' placeholder='color' onChange={onBgColorChange} />
+          <ColorPicker format="rgba" onChange={onBgColorChange} />
 
         </div>
       </div>
