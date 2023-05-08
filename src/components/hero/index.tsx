@@ -2,7 +2,7 @@
 // @ts-nocheck
 import { Container, createStyles, rem, Title, Image, FileInput, ColorPicker, Button } from '@mantine/core';
 import { IconFaceId } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 
 const useStyles = createStyles((theme) => ({
@@ -60,6 +60,7 @@ export function Hero() {
   const { classes } = useStyles();
   const [previewImage, setPreviewImage] = useState(null);
   const [bgColor, setBgColor] = useState(null);
+  const [loadedFromLocal, setLoadedFromLocal] = useState(false);
   const [colorSwatches, setColorSwatches] = useState(['#25262b', '#868e96', '#fa5252', '#e64980', '#be4bdb', '#7950f2', '#4c6ef5', '#228be6', '#15aabf', '#12b886', '#40c057', '#82c91e', '#fab005', '#fd7e14'])
 
 
@@ -70,6 +71,16 @@ export function Hero() {
   const onBgColorChange = (color: any) => {
     setBgColor(color);
   }
+
+  useEffect(() => {
+    if(!loadedFromLocal) {
+const localColors = localStorage.getItem('colorSwatches');
+      if(localColors) {
+        setColorSwatches(JSON.parse(localColors));
+      }
+      setLoadedFromLocal(true);
+    }
+  },[colorSwatches])
 
   return (
     <Container>
@@ -94,7 +105,10 @@ export function Hero() {
             onChange={onBgColorChange}
             size='xl' />
 
-          <Button onClick={(() => setColorSwatches(prev => [...prev, bgColor]))}>Add Color</Button>
+          <Button onClick={(() => {
+            setColorSwatches(prev => [...prev, bgColor])
+          localStorage.setItem('colorSwatches', JSON.stringify([...colorSwatches, bgColor]))
+          })}>Add Color</Button>
 
         </div>
       </div>
