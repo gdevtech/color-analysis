@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { Container, createStyles, rem, Title, Image, FileInput, ColorPicker, Button } from '@mantine/core';
+import { Container, createStyles, rem, Title, Image, FileInput, ColorPicker, Button, Group, Input } from '@mantine/core';
 import { IconFaceId } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 
@@ -61,6 +61,7 @@ export function Hero() {
   const [previewImage, setPreviewImage] = useState(null);
   const [bgColor, setBgColor] = useState(null);
   const [loadedFromLocal, setLoadedFromLocal] = useState(false);
+  const [openColorPicker, setOpenColorPicker] = useState(false);
   const [colorSwatches, setColorSwatches] = useState(['#25262b', '#868e96', '#fa5252', '#e64980', '#be4bdb', '#7950f2', '#4c6ef5', '#228be6', '#15aabf', '#12b886', '#40c057', '#82c91e', '#fab005', '#fd7e14'])
 
 
@@ -72,15 +73,19 @@ export function Hero() {
     setBgColor(color);
   }
 
+  const onInputColorChange = (event) => {
+    setBgColor(event.target.value);
+  }
+
   useEffect(() => {
-    if(!loadedFromLocal) {
-const localColors = localStorage.getItem('colorSwatches');
-      if(localColors) {
+    if (!loadedFromLocal) {
+      const localColors = localStorage.getItem('colorSwatches');
+      if (localColors) {
         setColorSwatches(JSON.parse(localColors));
       }
       setLoadedFromLocal(true);
     }
-  },[colorSwatches])
+  }, [colorSwatches])
 
   return (
     <Container>
@@ -97,18 +102,26 @@ const localColors = localStorage.getItem('colorSwatches');
 
           )}
           <FileInput label="Upload Image" placeholder="Click & Choose File" onChange={onImageChange} icon={<IconFaceId size={rem(14)} />} />
+          {!openColorPicker && (<Input type="color" label="Background Color" value={bgColor} onChange={onInputColorChange} />)}
+          {openColorPicker && (
+            <ColorPicker
+              swatchesPerRow={7}
+              format="hex"
+              value={bgColor}
+              swatches={colorSwatches}
+              onChange={onBgColorChange}
+              size='xl' />
 
-          <ColorPicker
-            swatchesPerRow={7}
-            format="hex"
-            swatches={colorSwatches}
-            onChange={onBgColorChange}
-            size='xl' />
+          )}
 
-          <Button onClick={(() => {
-            setColorSwatches(prev => [...prev, bgColor])
-          localStorage.setItem('colorSwatches', JSON.stringify([...colorSwatches, bgColor]))
-          })}>Add Color</Button>
+          <Group mt={6}>
+            <Button onClick={() => setOpenColorPicker(!openColorPicker)}>{openColorPicker ? 'Close' : 'Open'} Color Picker</Button>
+            <Button onClick={(() => {
+              setColorSwatches(prev => [...prev, bgColor])
+              localStorage.setItem('colorSwatches', JSON.stringify([...colorSwatches, bgColor]))
+            })}>Add Color</Button>
+
+          </Group>
 
         </div>
       </div>
