@@ -1,10 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { Container, createStyles, rem, Title, Image, FileInput, ColorPicker, Button, Group, Input, Divider, ColorSwatch, Indicator } from '@mantine/core';
-import { IconFaceId, IconSquareX } from '@tabler/icons-react';
+import { Container, createStyles, rem, Title, Image, FileInput, ColorPicker, Button, Group, Input, Divider, ColorSwatch, Stack, Badge } from '@mantine/core';
+import { IconFaceId } from '@tabler/icons-react';
 import { getCookie, setCookie } from 'cookies-next';
 import { useEffect, useState } from 'react';
-import { color } from '~/styles/colors';
 
 
 const useStyles = createStyles((theme) => ({
@@ -77,9 +76,10 @@ export function Hero() {
   }
 
   const swatches = colorSwatches.map((color) => (
-    <Indicator sx={{ cursor: 'pointer' }} color='red' inline offset={2} label='X' size={16} onClick={() => { console.log(color); deleteColorFromSwatch(color); }}>
+    <Stack>
+      <Badge component='button' sx={{ cursor: 'pointer' }} color='red' onClick={() => { deleteColorFromSwatch(color); }}>X</Badge>
       <ColorSwatch component='button' size={38} key={color} color={color} onClick={() => setBgColor(color)} />
-    </Indicator>
+    </Stack>
   ));
 
   const getAllSwatchNames = () => {
