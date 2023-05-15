@@ -1,8 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { Container, createStyles, rem, Title, Image, FileInput, ColorPicker, Button, Group, Input } from '@mantine/core';
+import { Container, createStyles, rem, Title, Image, FileInput, ColorPicker, Button, Group, Input, Divider } from '@mantine/core';
 import { IconFaceId } from '@tabler/icons-react';
+import { getCookie, setCookie } from 'cookies-next';
 import { useEffect, useState } from 'react';
+import { color } from '~/styles/colors';
 
 
 const useStyles = createStyles((theme) => ({
@@ -60,9 +62,54 @@ export function Hero() {
   const { classes } = useStyles();
   const [previewImage, setPreviewImage] = useState(null);
   const [bgColor, setBgColor] = useState(null);
-  const [loadedFromLocal, setLoadedFromLocal] = useState(false);
   const [openColorPicker, setOpenColorPicker] = useState(false);
-  const [colorSwatches, setColorSwatches] = useState(['#25262b', '#868e96', '#fa5252', '#e64980', '#be4bdb', '#7950f2', '#4c6ef5', '#228be6', '#15aabf', '#12b886', '#40c057', '#82c91e', '#fab005', '#fd7e14'])
+  const [colorSwatches, setColorSwatches] = useState([]);
+  const [openSaveSwatch, setOpenSaveSwatch] = useState(false);
+  const [swatchName, setSwatchName] = useState('');
+  const [allSwatchNames, setAllSwatchNames] = useState([]);
+
+  console.log(allSwatchNames);
+
+  const getAllSwatchNames = () => {
+    const cookies = document.cookie.split(';');
+    const swatchNames = cookies.filter((cookie) => cookie.includes('caSwatch-'));
+    const names = swatchNames.map((name) => name.split('=')[0].trim().replace('caSwatch-', ''));
+    setAllSwatchNames(names);
+    setSwatchByName(swatchName);
+  }
+
+  useEffect(() => {
+    getAllSwatchNames();
+  }, []);
+
+  const setSwatchByName = (name) => {
+    const swatch = getSwatch(`caSwatch-${name}`);
+    if (swatch) {
+      setColorSwatches(swatch);
+      setSwatchName(name);
+    }
+  }
+
+
+  const saveSwatch = (swatchName, color) => {
+    if (openSaveSwatch === false) return;
+    const swatch = getSwatch(`caSwatch-${swatchName}`);
+    if (swatch) {
+      const newSwatch = [...swatch, color];
+      setCookie(`caSwatch-${swatchName}`, JSON.stringify(newSwatch), { maxAge: 60 * 60 * 24 * 30 });
+      getAllSwatchNames();
+    } else {
+      setCookie(`caSwatch-${swatchName}`, JSON.stringify([color]), { maxAge: 60 * 60 * 24 * 30 });
+      getAllSwatchNames();
+    }
+  }
+
+  const getSwatch = (swatchName) => {
+    const swatch = getCookie(swatchName);
+    if (swatch) {
+      return JSON.parse(swatch);
+    }
+  }
 
 
   const onImageChange = (file: any) => {
@@ -76,16 +123,6 @@ export function Hero() {
   const onInputColorChange = (event) => {
     setBgColor(event.target.value);
   }
-
-  useEffect(() => {
-    if (!loadedFromLocal) {
-      const localColors = localStorage.getItem('colorSwatches');
-      if (localColors) {
-        setColorSwatches(JSON.parse(localColors));
-      }
-      setLoadedFromLocal(true);
-    }
-  }, [colorSwatches])
 
   return (
     <Container>
@@ -114,14 +151,23 @@ export function Hero() {
 
           )}
 
+          {openSaveSwatch && (<Input type="text" label="Swatch Name" value={swatchName} onChange={(e) => setSwatchName(e.target.value)} />)}
+
           <Group mt={6}>
             <Button onClick={() => setOpenColorPicker(!openColorPicker)}>{openColorPicker ? 'Close' : 'Open'} Color Picker</Button>
-            <Button onClick={(() => {
-              setColorSwatches(prev => [...prev, bgColor])
-              localStorage.setItem('colorSwatches', JSON.stringify([...colorSwatches, bgColor]))
-            })}>Add Color</Button>
-
+            <Button onClick={() => {
+              setOpenSaveSwatch(!openSaveSwatch);
+              saveSwatch(swatchName, bgColor);
+            }}>
+              {openSaveSwatch ? 'Save Swatch' : 'Add Color'}
+            </Button>
           </Group>
+
+          <Divider my={'lg'} label='All Saved Swatches' labelPosition='center' />
+
+          {allSwatchNames.map((name) => (
+            <Button style={{ backgroundColor: swatchName === name && 'green' }} m={6} onClick={() => setSwatchByName(name)}>{name}</Button>
+          ))}
 
         </div>
       </div>

@@ -2,6 +2,7 @@ import { Hero } from '~/components/hero';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/router';
 import LayoutPage from '~/layouts/page';
+import { useState } from 'react';
 
 export default function Home() {
   const router = useRouter();
