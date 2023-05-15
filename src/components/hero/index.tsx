@@ -157,7 +157,6 @@ export function Hero() {
               swatchesPerRow={7}
               format="hex"
               value={bgColor}
-              swatches={colorSwatches}
               onChange={onBgColorChange}
               size='xl' />
 
