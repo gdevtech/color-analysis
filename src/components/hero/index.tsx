@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { Container, createStyles, rem, Title, Image, FileInput, ColorPicker, Button, Group, Input, Divider } from '@mantine/core';
-import { IconFaceId } from '@tabler/icons-react';
+import { Container, createStyles, rem, Title, Image, FileInput, ColorPicker, Button, Group, Input, Divider, ColorSwatch, Indicator } from '@mantine/core';
+import { IconFaceId, IconSquareX } from '@tabler/icons-react';
 import { getCookie, setCookie } from 'cookies-next';
 import { useEffect, useState } from 'react';
 import { color } from '~/styles/colors';
@@ -68,7 +68,19 @@ export function Hero() {
   const [swatchName, setSwatchName] = useState('');
   const [allSwatchNames, setAllSwatchNames] = useState([]);
 
-  console.log(allSwatchNames);
+
+  const deleteColorFromSwatch = (color) => {
+    const swatch = getSwatch(`caSwatch-${swatchName}`);
+    const newSwatch = swatch.filter((swatch) => swatch !== color);
+    setCookie(`caSwatch-${swatchName}`, JSON.stringify(newSwatch), { maxAge: 60 * 60 * 24 * 30 });
+    getAllSwatchNames();
+  }
+
+  const swatches = colorSwatches.map((color) => (
+    <Indicator sx={{ cursor: 'pointer' }} color='red' inline offset={2} label='X' size={16} onClick={() => { console.log(color); deleteColorFromSwatch(color); }}>
+      <ColorSwatch component='button' size={38} key={color} color={color} onClick={() => setBgColor(color)} />
+    </Indicator>
+  ));
 
   const getAllSwatchNames = () => {
     const cookies = document.cookie.split(';');
@@ -164,6 +176,10 @@ export function Hero() {
           </Group>
 
           <Divider my={'lg'} label='All Saved Swatches' labelPosition='center' />
+
+          <Group position="center" spacing="sm" mb={12}>
+            {swatches}
+          </Group>
 
           {allSwatchNames.map((name) => (
             <Button style={{ backgroundColor: swatchName === name && 'green' }} m={6} onClick={() => setSwatchByName(name)}>{name}</Button>
